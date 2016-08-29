@@ -2,7 +2,6 @@
 
 import os
 from setuptools import setup
-from apbvt import testset  # tests to be included into the package
 
 PACKAGE_NAME = 'gcpmetrics'
 PACKAGE_VERSION = '1.0'
@@ -10,7 +9,7 @@ DESCRIPTION = 'Google Cloud Platform Metrics'
 
 
 def __find_package_data(folder):
-    add_extensions = ['.schema', '.html', '.js', '.css', '.xml', '.jinja', '.bat',
+    add_extensions = ['.schema', '.html', '.js', '.css', '.xml', '.jinja', '.bat', '.yaml',
                       '.json', '.png', '.jpg', '.po', '.txt', 'cert.pem', 'key.pem', '.zip']
 
     file_masks = []
@@ -29,19 +28,13 @@ def __find_package_data(folder):
 
 def get_packages():
     bvt_dirs = ['gcpmetrics']
-    bvt_dirs += __find_test_folders()
     return bvt_dirs
 
 
 def get_package_data():
-
-    data = {
-        # 'gcpmetrics': ['*.txt']
-    }
-    dirs = __find_test_folders()
-    for folder in dirs:
-        masks = __find_package_data(folder)
-        data[folder] = masks
+    data = {}
+    found = __find_package_data('gcpmetrics')
+    data['gcpmetrics'] = found
     return data
 
 
