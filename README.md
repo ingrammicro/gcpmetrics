@@ -1,4 +1,4 @@
-# Google Cloud Metrics Access Tool
+# Google Cloud Metrics Command-Line Tool
 
 ## Overview
 
@@ -7,7 +7,7 @@ http://googlecloudplatform.github.io/gcloud-python/stable/gcloud-auth.html
 
 Today it only supports interactive authentication, i.e.:
 
-$ gcloud auth login
+```$ gcloud auth login```
 
 We will soon add support of service account tokents.
 
