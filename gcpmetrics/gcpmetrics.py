@@ -3,6 +3,7 @@
 import sys
 import argparse
 import pandas
+import datetime
 from tabulate import tabulate
 from gcloud import monitoring
 
@@ -84,7 +85,7 @@ def _build_label_filter(category, *args, **kwargs):
 
     return ' AND '.join(sorted(terms))
 
-def perform_query(client, metric_id, days, hours, minutes, resource_filter, metric_filter):
+def perform_query(client, metric_id, days, hours, minutes, resource_filter, metric_filter, alignment):
 
     # yes, ugly, but we need to fix this method...
     print 'PATCHED _build_label_filter'
@@ -103,6 +104,11 @@ def perform_query(client, metric_id, days, hours, minutes, resource_filter, metr
     if metric_filter:
         query = query.select_metrics(**metric_filter)
 
+    if alignment:
+        delta = datetime.timedelta(days=days, hours=hours, minutes=minutes)
+        seconds = delta.total_seconds()
+        print 'ALIGNMENT: {} seconds={}'.format(alignment, seconds)
+        query = query.align(alignment, seconds=seconds)
 
     print 'QUERY: {}'.format(query.filter)
 
@@ -110,7 +116,7 @@ def perform_query(client, metric_id, days, hours, minutes, resource_filter, metr
     print dataframe
 
 
-def process(project_id, list_resources, list_metrics, query, metric_id, days, hours, minutes, resource_filter, metric_filter):
+def process(project_id, list_resources, list_metrics, query, metric_id, days, hours, minutes, resource_filter, metric_filter, alignment):
 
     client = monitoring.Client(project=project_id)
 
@@ -121,7 +127,7 @@ def process(project_id, list_resources, list_metrics, query, metric_id, days, ho
         list_metric_descriptors(client)
 
     elif query:
-        perform_query(client, metric_id, days, hours, minutes, resource_filter, metric_filter)
+        perform_query(client, metric_id, days, hours, minutes, resource_filter, metric_filter, alignment)
 
 
 def main():
@@ -133,12 +139,14 @@ def main():
     parser.add_argument('--list_resources', default=False, action='store_true', help='List monitored resource descriptors and exit.')
     parser.add_argument('--list_metrics', default=False, action='store_true', help='List available metric descriptors and exit.')
     parser.add_argument('--query', default=False, action='store_true', help='Run the time series query.')
+    parser.add_argument('--since_dawn', default=False, action='store_true', help='Calculate delta since the dawn of time.')
     parser.add_argument('--metric_id', help='Metric ID as defined by Google Monitoring API..', metavar='ID')
     parser.add_argument('--days', default=0, help='Days from now to calculate the query start date.', metavar='INT')
     parser.add_argument('--hours', default=0, help='Hours from now to calculate the query start date.', metavar='INT')
     parser.add_argument('--minutes', default=0, help='Minutes from now to calculate the query start date.', metavar='INT')
     parser.add_argument('--resource_filter', default=None, help='Filter of resources in the var:val[,var:val] format.', metavar='S')
     parser.add_argument('--metric_filter', default=None, help='Filter of metrics in the var:val[,var:val] format.', metavar='S')
+    parser.add_argument('--alignment', default=None, help='Alignment of data ALIGN_NONE, ALIGN_SUM. etc..', metavar='A')
 
     def process_filter(_filter):
         if not _filter:
@@ -152,6 +160,18 @@ def main():
 
     args = parser.parse_args()
 
+    days = args.days
+    hours = args.hours
+    minutes = args.minutes
+    if args.since_dawn:
+        # October 6, 2011 is an official launch date of Google Cloud Platform
+        dawn = datetime.datetime.strptime('2011-10-06', '%Y-%m-%d')
+        now =  datetime.datetime.utcnow()
+        delta = now - dawn
+        days = delta.days
+        hours = 0
+        minutes = 0
+
     resource_filter = process_filter(args.resource_filter)
     metric_filter = process_filter(args.metric_filter)
     process(
@@ -160,11 +180,12 @@ def main():
         args.list_metrics,
         args.query,
         args.metric_id,
-        int(args.days),
-        int(args.hours),
-        int(args.minutes),
+        int(days),
+        int(hours),
+        int(minutes),
         resource_filter,
-        metric_filter
+        metric_filter,
+        args.alignment
         )
 
 if __name__ == '__main__':

@@ -1,4 +1,4 @@
-# Google Cloud Metrics Command-Line Tool
+# Google Cloud Monitoring API Command-Line Tool
 
 ## Overview
 
@@ -39,9 +39,9 @@ optional arguments:
 ## Examples
 
 ```
-$ gcpmetrics --project_id odin-ap --resource_descriptors
+$ gcpmetrics --project_id odin-ap --list_resources
 
-$ gcpmetrics --project_id odin-ap --metric_descriptors
+$ gcpmetrics --project_id odin-ap --list_descriptors
 
 $ gcpmetrics --project_id odin-ap --query --days 1 --metric_id appengine.googleapis.com/http/server/response_count --resource_filter="module_id:service"
 
