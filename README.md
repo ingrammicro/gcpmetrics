@@ -1,4 +1,4 @@
-# Google Cloud Monitoring API Command-Line Tool
+# Google Cloud Monitoring API: Command-Line Tool
 
 ## Overview
 

@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 
+import os
 import sys
 import argparse
 import pandas
 import datetime
-from tabulate import tabulate
+import yaml
 from gcloud import monitoring
+from collections import namedtuple
 
 def list_resource_descriptors(client):
     print 'Monitored resource descriptors:'
@@ -88,6 +90,12 @@ def _build_label_filter(category, *args, **kwargs):
 def perform_query(client, metric_id, days, hours, minutes, \
         resource_filter, metric_filter, align, reduce, reduce_grouping, iloc00):
 
+    if (days + hours + minutes) == 0: 
+        raise ValueError('No time interval specified. Please use --since_dawn or --days, --hours, --minutes')
+
+    if not metric_id:
+        raise ValueError('Metric ID is required for query, please use --metric_id')
+
     # yes, ugly, but we need to fix this method...
     monitoring.query._build_label_filter = _build_label_filter
 
@@ -108,7 +116,7 @@ def perform_query(client, metric_id, days, hours, minutes, \
         delta = datetime.timedelta(days=days, hours=hours, minutes=minutes)
         seconds = delta.total_seconds()
         if not iloc00:
-            print 'ALIGNMENT: {} seconds: {}'.format(align, seconds)
+            print 'ALIGN: {} seconds: {}'.format(align, seconds)
         query = query.align(align, seconds=seconds)
 
     if reduce:
@@ -137,7 +145,10 @@ def perform_query(client, metric_id, days, hours, minutes, \
 
 
 def process(project_id, list_resources, list_metrics, query, metric_id, days, hours, minutes, \
-            resource_filter, metric_filter, alignment, reduce, reduce_grouping, iloc00):
+            resource_filter, metric_filter, align, reduce, reduce_grouping, iloc00):
+
+    if not project_id:
+        raise ValueError('--project_id not specified')
 
     client = monitoring.Client(project=project_id)
 
@@ -149,18 +160,49 @@ def process(project_id, list_resources, list_metrics, query, metric_id, days, ho
 
     elif query:
         perform_query(client, metric_id, days, hours, minutes, \
-            resource_filter, metric_filter, alignment, reduce, reduce_grouping, iloc00)
+            resource_filter, metric_filter, align, reduce, reduce_grouping, iloc00)
 
+    else:
+        raise ValueError('No operation specified. Please choose one of --list_resources, --list_metrics, --query')
+
+
+def apply_presets(args_dict):
+
+    if not 'preset_id' in args_dict:
+        return args_dict
+
+    preset_id = args_dict['preset_id']
+    
+    _path = os.path.split( os.path.abspath(__file__) )[0]
+    stream = file(os.path.join(_path, 'presets.yaml'), 'r')
+    presets = yaml.load(stream)
+    if not preset_id in presets:
+        raise ValueError('Preset {} not found in {}'.format(preset_id, presets.keys()))
+    preset = presets[preset_id]
+
+    def calc_key(_key, _from, _to):
+        if _key in _from:
+            return _from[_key]
+        return _to[_key]
+
+    _ret = {}
+    for p in args_dict.keys():
+        _ret[p] = calc_key(p, preset, args_dict)
+
+    return _ret
 
 def main():
+
     parser = argparse.ArgumentParser(
         description=__doc__,
         formatter_class=argparse.RawDescriptionHelpFormatter
         )
-    parser.add_argument('--project_id', help='Project ID.', metavar='ID', required=True)
+    parser.add_argument('--preset_id', help='Preset ID, like http_response_5xx_sum, etc.', metavar='ID')
+    parser.add_argument('--project_id', help='Project ID.', metavar='ID')
     parser.add_argument('--list_resources', default=False, action='store_true', help='List monitored resource descriptors and exit.')
     parser.add_argument('--list_metrics', default=False, action='store_true', help='List available metric descriptors and exit.')
     parser.add_argument('--query', default=False, action='store_true', help='Run the time series query.')
+    parser.add_argument('--service_id', help='Service ID.', metavar='ID')
     parser.add_argument('--since_dawn', default=False, action='store_true', help='Calculate delta since the dawn of time.')
     parser.add_argument('--metric_id', help='Metric ID as defined by Google Monitoring API..', metavar='ID')
     parser.add_argument('--days', default=0, help='Days from now to calculate the query start date.', metavar='INT')
@@ -168,10 +210,31 @@ def main():
     parser.add_argument('--minutes', default=0, help='Minutes from now to calculate the query start date.', metavar='INT')
     parser.add_argument('--resource_filter', default=None, help='Filter of resources in the var:val[,var:val] format.', metavar='S')
     parser.add_argument('--metric_filter', default=None, help='Filter of metrics in the var:val[,var:val] format.', metavar='S')
-    parser.add_argument('--alignment', default=None, help='Alignment of data ALIGN_NONE, ALIGN_SUM. etc.', metavar='A')
+    parser.add_argument('--align', default=None, help='Alignment of data ALIGN_NONE, ALIGN_SUM. etc.', metavar='A')
     parser.add_argument('--reduce', default=None, help='Reduce of data REDUCE_NONE, REDUCE_SUM, etc.', metavar='R')
     parser.add_argument('--reduce_grouping', default=None, help='Reduce grouping in the var1[,var2] format.', metavar='R')
     parser.add_argument('--iloc00', default=False, action='store_true', help='Print value from the table index [0:0] only.')
+
+    _args = parser.parse_args()
+    args_dict = vars(_args)
+    args_dict = apply_presets(args_dict)    
+
+    if args_dict['since_dawn']:
+        # October 6, 2011 = Google Cloud Platform launch date ;-)
+        dawn = datetime.datetime.strptime('2011-10-06', '%Y-%m-%d')
+        now =  datetime.datetime.utcnow()
+        delta = now - dawn
+        args_dict['days'] = delta.days
+        args_dict['hours'] = 0
+        args_dict['minutes'] = 0
+
+    # --service_id XXX extends resources filter as 'module_id:XXX'
+    if args_dict['service_id']:
+        append = 'module_id:{}'.format(args_dict['service_id'])
+        if args_dict['resource_filter'] is None:
+            args_dict['resource_filter'] = append
+        else:
+           args_dict['resource_filter'] += append
 
     def process_filter(_filter):
         if not _filter:
@@ -183,41 +246,28 @@ def main():
             _ret[key] = value
         return _ret
 
-    args = parser.parse_args()
-    days = args.days
-    hours = args.hours
-    minutes = args.minutes
+    # data re-formatting for simpler use going forward
+    resource_filter = process_filter(args_dict['resource_filter'])
+    metric_filter = process_filter(args_dict['metric_filter'])
 
-    if args.since_dawn:
-        # October 6, 2011 = Google Cloud Platform launch date ;-)
-        dawn = datetime.datetime.strptime('2011-10-06', '%Y-%m-%d')
-        now =  datetime.datetime.utcnow()
-        delta = now - dawn
-        days = delta.days
-        hours = 0
-        minutes = 0
+    if args_dict['reduce_grouping']:
+        args_dict['reduce_grouping'] = args_dict['reduce_grouping'].split(',')
 
-    reduce_grouping = None
-    if args.reduce_grouping:
-        reduce_grouping = args.reduce_grouping.aplit(',')
-
-    resource_filter = process_filter(args.resource_filter)
-    metric_filter = process_filter(args.metric_filter)
     process(
-        args.project_id,
-        args.list_resources,
-        args.list_metrics,
-        args.query,
-        args.metric_id,
-        int(days),
-        int(hours),
-        int(minutes),
+        args_dict['project_id'],
+        args_dict['list_resources'],
+        args_dict['list_metrics'],
+        args_dict['query'],
+        args_dict['metric_id'],
+        int(args_dict['days']),
+        int(args_dict['hours']),
+        int(args_dict['minutes']),
         resource_filter,
         metric_filter,
-        args.alignment,
-        args.reduce,
-        reduce_grouping,
-        args.iloc00
+        args_dict['align'],
+        args_dict['reduce'],
+        args_dict['reduce_grouping'],
+        args_dict['iloc00']
         )
 
 if __name__ == '__main__':
