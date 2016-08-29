@@ -130,15 +130,15 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter
         )
     parser.add_argument('--project_id', help='Project ID.', metavar='ID', required=True)
-    parser.add_argument('--list_resources', default=False, action='store_true', help='List monitored resource descriptors.')
-    parser.add_argument('--list_metrics', default=False, action='store_true', help='List available metric descriptors.')
-    parser.add_argument('--query', default=False, action='store_true', help='Perform time series query.')
-    parser.add_argument('--metric_id', help='Metric ID.', metavar='ID')
-    parser.add_argument('--days', default=0, help='Days', metavar='INT')
-    parser.add_argument('--hours', default=0, help='Hours', metavar='INT')
-    parser.add_argument('--minutes', default=0, help='Minutes', metavar='INT')
-    parser.add_argument('--resource_filter', default=None, help='Filter of resources (string) in the var:val[,var:val] format.', metavar='S')
-    parser.add_argument('--metric_filter', default=None, help='Filter of metrics (string) in the var:val[,var:val] format.', metavar='S')
+    parser.add_argument('--list_resources', default=False, action='store_true', help='List monitored resource descriptors and exit.')
+    parser.add_argument('--list_metrics', default=False, action='store_true', help='List available metric descriptors and exit.')
+    parser.add_argument('--query', default=False, action='store_true', help='Run the time series query.')
+    parser.add_argument('--metric_id', help='Metric ID as defined by Google Monitoring API..', metavar='ID')
+    parser.add_argument('--days', default=0, help='Days from now to calculate the query start date.', metavar='INT')
+    parser.add_argument('--hours', default=0, help='Hours from now to calculate the query start date.', metavar='INT')
+    parser.add_argument('--minutes', default=0, help='Minutes from now to calculate the query start date.', metavar='INT')
+    parser.add_argument('--resource_filter', default=None, help='Filter of resources in the var:val[,var:val] format.', metavar='S')
+    parser.add_argument('--metric_filter', default=None, help='Filter of metrics in the var:val[,var:val] format.', metavar='S')
 
     def process_filter(_filter):
         if not _filter:

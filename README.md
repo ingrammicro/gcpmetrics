@@ -24,17 +24,15 @@ usage: gcpmetrics.py [-h] --project_id ID [--list_resources] [--list_metrics]
 optional arguments:
   -h, --help           show this help message and exit
   --project_id ID      Project ID.
-  --list_resources     List monitored resource descriptors.
-  --list_metrics       List available metric descriptors.
-  --query              Perform time series query.
-  --metric_id ID       Metric ID.
-  --days INT           Days
-  --hours INT          Hours
-  --minutes INT        Minutes
-  --resource_filter S  Filter of resources (string) in the var:val[,var:val]
-                       format.
-  --metric_filter S    Filter of metrics (string) in the var:val[,var:val]
-                       format.
+  --list_resources     List monitored resource descriptors and exit.
+  --list_metrics       List available metric descriptors and exit.
+  --query              Run the time series query.
+  --metric_id ID       Metric ID as defined by Google Monitoring API..
+  --days INT           Days from now to calculate the query start date.
+  --hours INT          Hours from now to calculate the query start date.
+  --minutes INT        Minutes from now to calculate the query start date.
+  --resource_filter S  Filter of resources in the var:val[,var:val] format.
+  --metric_filter S    Filter of metrics in the var:val[,var:val] format.
 
 ```
 
