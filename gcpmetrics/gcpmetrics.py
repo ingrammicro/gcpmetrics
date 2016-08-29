@@ -7,6 +7,35 @@ import datetime
 import yaml
 from gcloud import monitoring
 
+PARSER = argparse.ArgumentParser(
+    description=__doc__,
+    formatter_class=argparse.RawDescriptionHelpFormatter
+)
+PARSER.add_argument('--preset_id', help='Preset ID, like http_response_5xx_sum, etc.', metavar='ID')
+PARSER.add_argument('--project_id', help='Project ID.', metavar='ID')
+PARSER.add_argument('--list_resources', default=False, action='store_true', help='List monitored resource descriptors and exit.')
+PARSER.add_argument('--list_metrics', default=False, action='store_true', help='List available metric descriptors and exit.')
+PARSER.add_argument('--query', default=False, action='store_true', help='Run the time series query.')
+PARSER.add_argument('--service_id', help='Service ID.', metavar='ID')
+PARSER.add_argument('--since_dawn', default=False, action='store_true', help='Calculate delta since the dawn of time.')
+PARSER.add_argument('--metric_id', help='Metric ID as defined by Google Monitoring API..', metavar='ID')
+PARSER.add_argument('--days', default=0, help='Days from now to calculate the query start date.', metavar='INT')
+PARSER.add_argument('--hours', default=0, help='Hours from now to calculate the query start date.', metavar='INT')
+PARSER.add_argument('--minutes', default=0, help='Minutes from now to calculate the query start date.', metavar='INT')
+PARSER.add_argument('--resource_filter', default=None, help='Filter of resources in the var:val[,var:val] format.', metavar='S')
+PARSER.add_argument('--metric_filter', default=None, help='Filter of metrics in the var:val[,var:val] format.', metavar='S')
+PARSER.add_argument('--align', default=None, help='Alignment of data ALIGN_NONE, ALIGN_SUM. etc.', metavar='A')
+PARSER.add_argument('--reduce', default=None, help='Reduce of data REDUCE_NONE, REDUCE_SUM, etc.', metavar='R')
+PARSER.add_argument('--reduce_grouping', default=None, help='Reduce grouping in the var1[,var2] format.', metavar='R')
+PARSER.add_argument('--iloc00', default=False, action='store_true', help='Print value from the table index [0:0] only.')
+
+
+def error(message):
+    sys.stderr.write('error: {}'.format(message))
+    print
+    print
+    PARSER.print_help()
+    sys.exit(1)
 
 def list_resource_descriptors(client):
     print 'Monitored resource descriptors:'
@@ -90,10 +119,10 @@ def perform_query(client, metric_id, days, hours, minutes,
                   resource_filter, metric_filter, align, reduce, reduce_grouping, iloc00):
 
     if (days + hours + minutes) == 0:
-        raise ValueError('No time interval specified. Please use --since_dawn or --days, --hours, --minutes')
+        error('No time interval specified. Please use --since_dawn or --days, --hours, --minutes')
 
     if not metric_id:
-        raise ValueError('Metric ID is required for query, please use --metric_id')
+        error('Metric ID is required for query, please use --metric_id')
 
     # yes, ugly, but we need to fix this method...
     monitoring.query._build_label_filter = _build_label_filter
@@ -147,7 +176,7 @@ def process(project_id, list_resources, list_metrics, query, metric_id, days, ho
             resource_filter, metric_filter, align, reduce, reduce_grouping, iloc00):
 
     if not project_id:
-        raise ValueError('--project_id not specified')
+        error('--project_id not specified')
 
     client = monitoring.Client(project=project_id)
 
@@ -162,12 +191,12 @@ def process(project_id, list_resources, list_metrics, query, metric_id, days, ho
                       resource_filter, metric_filter, align, reduce, reduce_grouping, iloc00)
 
     else:
-        raise ValueError('No operation specified. Please choose one of --list_resources, --list_metrics, --query')
+        error('No operation specified. Please choose one of --list_resources, --list_metrics, --query')
 
 
 def apply_presets(args_dict):
 
-    if 'preset_id' not in args_dict:
+    if not args_dict['preset_id']:
         return args_dict
 
     preset_id = args_dict['preset_id']
@@ -176,7 +205,7 @@ def apply_presets(args_dict):
     stream = file(os.path.join(_path, 'presets.yaml'), 'r')
     presets = yaml.load(stream)
     if preset_id not in presets:
-        raise ValueError('Preset {} not found in {}'.format(preset_id, presets.keys()))
+        error('Preset {} not found in {}'.format(preset_id, presets.keys()))
     preset = presets[preset_id]
 
     def calc_key(_key, _from, _to):
@@ -192,30 +221,7 @@ def apply_presets(args_dict):
 
 
 def main():
-
-    parser = argparse.ArgumentParser(
-        description=__doc__,
-        formatter_class=argparse.RawDescriptionHelpFormatter
-    )
-    parser.add_argument('--preset_id', help='Preset ID, like http_response_5xx_sum, etc.', metavar='ID')
-    parser.add_argument('--project_id', help='Project ID.', metavar='ID')
-    parser.add_argument('--list_resources', default=False, action='store_true', help='List monitored resource descriptors and exit.')
-    parser.add_argument('--list_metrics', default=False, action='store_true', help='List available metric descriptors and exit.')
-    parser.add_argument('--query', default=False, action='store_true', help='Run the time series query.')
-    parser.add_argument('--service_id', help='Service ID.', metavar='ID')
-    parser.add_argument('--since_dawn', default=False, action='store_true', help='Calculate delta since the dawn of time.')
-    parser.add_argument('--metric_id', help='Metric ID as defined by Google Monitoring API..', metavar='ID')
-    parser.add_argument('--days', default=0, help='Days from now to calculate the query start date.', metavar='INT')
-    parser.add_argument('--hours', default=0, help='Hours from now to calculate the query start date.', metavar='INT')
-    parser.add_argument('--minutes', default=0, help='Minutes from now to calculate the query start date.', metavar='INT')
-    parser.add_argument('--resource_filter', default=None, help='Filter of resources in the var:val[,var:val] format.', metavar='S')
-    parser.add_argument('--metric_filter', default=None, help='Filter of metrics in the var:val[,var:val] format.', metavar='S')
-    parser.add_argument('--align', default=None, help='Alignment of data ALIGN_NONE, ALIGN_SUM. etc.', metavar='A')
-    parser.add_argument('--reduce', default=None, help='Reduce of data REDUCE_NONE, REDUCE_SUM, etc.', metavar='R')
-    parser.add_argument('--reduce_grouping', default=None, help='Reduce grouping in the var1[,var2] format.', metavar='R')
-    parser.add_argument('--iloc00', default=False, action='store_true', help='Print value from the table index [0:0] only.')
-
-    _args = parser.parse_args()
+    _args = PARSER.parse_args()
     args_dict = vars(_args)
     args_dict = apply_presets(args_dict)
 
