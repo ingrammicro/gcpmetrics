@@ -84,15 +84,10 @@ def _build_label_filter(category, *args, **kwargs):
 
     return ' AND '.join(sorted(terms))
 
-def perform_query(client, service_id, metric_id, days, hours, minutes):
+def perform_query(client, metric_id, days, hours, minutes, resource_filter, metric_filter):
 
-    # metric.type = "appengine.googleapis.com/http/server/response_count"
-    #   AND resource.label.module_id = "service"
-    #   AND metric.label.response_code >= 500
-    #   AND metric.label.response_code < 600
-
-    # yes, this is ugly, but we need to fix this method...
-    print 'PATCHED _build_label_filter (!)'
+    # yes, ugly, but we need to fix this method...
+    print 'PATCHED _build_label_filter'
     monitoring.query._build_label_filter = _build_label_filter
 
     query = client.query(
@@ -102,26 +97,31 @@ def perform_query(client, service_id, metric_id, days, hours, minutes):
         minutes=minutes
         )
 
-    query = query.select_resources(module_id=service_id)
-    query = query.select_metrics(response_code_greaterequal=500, response_code_less=600)
-    print 'Query: {}'.format(query.filter)
+    if resource_filter:
+        query = query.select_resources(**resource_filter)
+
+    if metric_filter:
+        query = query.select_metrics(**metric_filter)
+
+
+    print 'QUERY: {}'.format(query.filter)
 
     dataframe = query.as_dataframe()
     print dataframe
 
 
-def process(project_id, resource_descriptors, metric_descriptors, query, service_id, metric_id, days, hours, minutes):
+def process(project_id, list_resources, list_metrics, query, metric_id, days, hours, minutes, resource_filter, metric_filter):
 
     client = monitoring.Client(project=project_id)
 
-    if resource_descriptors:
+    if list_resources:
         list_resource_descriptors(client)
 
-    elif metric_descriptors:
+    elif list_metrics:
         list_metric_descriptors(client)
 
     elif query:
-        perform_query(client, service_id, metric_id, days, hours, minutes)
+        perform_query(client, metric_id, days, hours, minutes, resource_filter, metric_filter)
 
 
 def main():
@@ -130,26 +130,41 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter
         )
     parser.add_argument('--project_id', help='Project ID.', metavar='ID', required=True)
-    parser.add_argument('--resource_descriptors', default=False, action='store_true', help='List monitored resource descriptors.')
-    parser.add_argument('--metric_descriptors', default=False, action='store_true', help='List available metric descriptors.')
+    parser.add_argument('--list_resources', default=False, action='store_true', help='List monitored resource descriptors.')
+    parser.add_argument('--list_metrics', default=False, action='store_true', help='List available metric descriptors.')
     parser.add_argument('--query', default=False, action='store_true', help='Perform time series query.')
-    parser.add_argument('--service_id', help='Service ID.', metavar='ID')
     parser.add_argument('--metric_id', help='Metric ID.', metavar='ID')
-    parser.add_argument('--days', default=0, help='Days', metavar='num')
-    parser.add_argument('--hours', default=0, help='Hours', metavar='num')
-    parser.add_argument('--minutes', default=0, help='Minutes', metavar='num')
+    parser.add_argument('--days', default=0, help='Days', metavar='INT')
+    parser.add_argument('--hours', default=0, help='Hours', metavar='INT')
+    parser.add_argument('--minutes', default=0, help='Minutes', metavar='INT')
+    parser.add_argument('--resource_filter', default=None, help='Filter of resources (string) in the var:val[,var:val] format.', metavar='S')
+    parser.add_argument('--metric_filter', default=None, help='Filter of metrics (string) in the var:val[,var:val] format.', metavar='S')
+
+    def process_filter(_filter):
+        if not _filter:
+            return None
+        _filter = _filter.split(',')
+        _ret = {}
+        for res in _filter:
+            key, value = res.split(':')
+            _ret[key] = value
+        return _ret
 
     args = parser.parse_args()
+
+    resource_filter = process_filter(args.resource_filter)
+    metric_filter = process_filter(args.metric_filter)
     process(
         args.project_id,
-        args.resource_descriptors,
-        args.metric_descriptors,
+        args.list_resources,
+        args.list_metrics,
         args.query,
-        args.service_id,
         args.metric_id,
         int(args.days),
         int(args.hours),
-        int(args.minutes)
+        int(args.minutes),
+        resource_filter,
+        metric_filter
         )
 
 if __name__ == '__main__':

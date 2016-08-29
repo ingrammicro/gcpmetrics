@@ -16,10 +16,26 @@ We will soon add support of service account tokents.
 ## Usage
 
 ```
-usage: gcpmetrics.py [-h] --project_id ID [--resource_descriptors]
-                     [--metric_descriptors] [--query] [--service_id ID]
-                     [--metric_id ID] [--days num] [--hours num]
-                     [--minutes num]
+$ ./gcpmetrics.py --help
+usage: gcpmetrics.py [-h] --project_id ID [--list_resources] [--list_metrics]
+                     [--query] [--metric_id ID] [--days INT] [--hours INT]
+                     [--minutes INT] [--resource_filter S] [--metric_filter S]
+
+optional arguments:
+  -h, --help           show this help message and exit
+  --project_id ID      Project ID.
+  --list_resources     List monitored resource descriptors.
+  --list_metrics       List available metric descriptors.
+  --query              Perform time series query.
+  --metric_id ID       Metric ID.
+  --days INT           Days
+  --hours INT          Hours
+  --minutes INT        Minutes
+  --resource_filter S  Filter of resources (string) in the var:val[,var:val]
+                       format.
+  --metric_filter S    Filter of metrics (string) in the var:val[,var:val]
+                       format.
+
 ```
 
 ## Examples
@@ -29,5 +45,8 @@ $ gcpmetrics --project_id odin-ap --resource_descriptors
 
 $ gcpmetrics --project_id odin-ap --metric_descriptors
 
-$ gcpmetrics --project_id odin-ap --query --service_id service --days 1 --metric_id appengine.googleapis.com/http/server/response_count
+$ gcpmetrics --project_id odin-ap --query --days 1 --metric_id appengine.googleapis.com/http/server/response_count --resource_filter="module_id:service"
+
+$ gcpmetrics --project_id odin-ap --query --days 1 --metric_id appengine.googleapis.com/http/server/response_count --resource_filter="module_id:service" --metric_filter="response_code_greaterequal:500,response_code_less:600"
+
 ```
