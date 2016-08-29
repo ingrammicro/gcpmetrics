@@ -37,6 +37,7 @@ def error(message):
     PARSER.print_help()
     sys.exit(1)
 
+
 def list_resource_descriptors(client):
     print 'Monitored resource descriptors:'
 
