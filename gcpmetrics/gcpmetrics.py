@@ -85,10 +85,10 @@ def _build_label_filter(category, *args, **kwargs):
 
     return ' AND '.join(sorted(terms))
 
-def perform_query(client, metric_id, days, hours, minutes, resource_filter, metric_filter, align, reduce, reduce_grouping):
+def perform_query(client, metric_id, days, hours, minutes, \
+        resource_filter, metric_filter, align, reduce, reduce_grouping, iloc00):
 
     # yes, ugly, but we need to fix this method...
-    print 'PATCHED _build_label_filter'
     monitoring.query._build_label_filter = _build_label_filter
 
     query = client.query(
@@ -107,23 +107,37 @@ def perform_query(client, metric_id, days, hours, minutes, resource_filter, metr
     if align:
         delta = datetime.timedelta(days=days, hours=hours, minutes=minutes)
         seconds = delta.total_seconds()
-        print 'ALIGNMENT: {} seconds: {}'.format(align, seconds)
+        if not iloc00:
+            print 'ALIGNMENT: {} seconds: {}'.format(align, seconds)
         query = query.align(align, seconds=seconds)
 
     if reduce:
-        print 'REDUCE: {} grouping: {}'.format(reduce, reduce_grouping)
+        if not iloc00:
+            print 'REDUCE: {} grouping: {}'.format(reduce, reduce_grouping)
         if reduce_grouping:
             query = query.reduce(reduce, *reduce_grouping)
         else:
             query = query.reduce(reduce)
 
-    print 'QUERY: {}'.format(query.filter)
+    if not iloc00:
+        print 'QUERY: {}'.format(query.filter)
 
     dataframe = query.as_dataframe()
-    print dataframe
+
+    if iloc00:
+        # print "top left" element of the table only, asusming it's the only one left
+        # see http://pandas.pydata.org/pandas-docs/stable/10min.html for details
+        assert len(dataframe) == 1
+        assert len(dataframe.iloc[0]) == 1
+        print dataframe.iloc[0,0]
+
+    else:
+        # print the whole dataset
+        print dataframe
 
 
-def process(project_id, list_resources, list_metrics, query, metric_id, days, hours, minutes, resource_filter, metric_filter, alignment, reduce, reduce_grouping):
+def process(project_id, list_resources, list_metrics, query, metric_id, days, hours, minutes, \
+            resource_filter, metric_filter, alignment, reduce, reduce_grouping, iloc00):
 
     client = monitoring.Client(project=project_id)
 
@@ -134,7 +148,8 @@ def process(project_id, list_resources, list_metrics, query, metric_id, days, ho
         list_metric_descriptors(client)
 
     elif query:
-        perform_query(client, metric_id, days, hours, minutes, resource_filter, metric_filter, alignment, reduce, reduce_grouping)
+        perform_query(client, metric_id, days, hours, minutes, \
+            resource_filter, metric_filter, alignment, reduce, reduce_grouping, iloc00)
 
 
 def main():
@@ -156,6 +171,7 @@ def main():
     parser.add_argument('--alignment', default=None, help='Alignment of data ALIGN_NONE, ALIGN_SUM. etc.', metavar='A')
     parser.add_argument('--reduce', default=None, help='Reduce of data REDUCE_NONE, REDUCE_SUM, etc.', metavar='R')
     parser.add_argument('--reduce_grouping', default=None, help='Reduce grouping in the var1[,var2] format.', metavar='R')
+    parser.add_argument('--iloc00', default=False, action='store_true', help='Print value from the table index [0:0] only.')
 
     def process_filter(_filter):
         if not _filter:
@@ -200,7 +216,8 @@ def main():
         metric_filter,
         args.alignment,
         args.reduce,
-        reduce_grouping
+        reduce_grouping,
+        args.iloc00
         )
 
 if __name__ == '__main__':
