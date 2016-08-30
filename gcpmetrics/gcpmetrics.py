@@ -198,7 +198,7 @@ def process(keyfile, config, project_id, list_resources, list_metrics, query, me
         if config:
             _file = os.path.join(os.path.split(config)[0], keyfile)
 
-        client = monitoring.Client.from_service_account_json(_file)
+        client = monitoring.Client.from_service_account_json(_file, project=project_id)
 
     if list_resources:
         list_resource_descriptors(client)
