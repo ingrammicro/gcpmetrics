@@ -62,6 +62,7 @@ setup(
     packages=get_packages(),
     package_data=get_package_data(),
     install_requires=get_install_requires(),
+    odintools=True,
     zip_safe=False,
     entry_points={
         'console_scripts': ['gcpmetrics = gcpmetrics.gcpmetrics:main']
