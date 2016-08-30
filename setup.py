@@ -41,6 +41,7 @@ def get_install_requires():
     with open('requirements.txt') as f:
         return f.readlines()
 
+
 def version():
     _path = os.path.split(os.path.abspath(__file__))[0]
     _file = os.path.join(_path, 'version.txt')
@@ -48,6 +49,7 @@ def version():
     ver = f.read()
     f.close()
     return ver.strip()
+
 
 setup(
     name=PACKAGE_NAME,
