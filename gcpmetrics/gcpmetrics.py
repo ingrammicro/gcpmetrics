@@ -11,6 +11,7 @@ PARSER = argparse.ArgumentParser(
     description=__doc__,
     formatter_class=argparse.RawDescriptionHelpFormatter
 )
+PARSER.add_argument('--keyfile', help='Goolge Cloud Platform service account key file', metavar='FILE')
 PARSER.add_argument('--preset_id', help='Preset ID, like http_response_5xx_sum, etc.', metavar='ID')
 PARSER.add_argument('--project_id', help='Project ID.', metavar='ID')
 PARSER.add_argument('--list_resources', default=False, action='store_true', help='List monitored resource descriptors and exit.')
@@ -173,13 +174,17 @@ def perform_query(client, metric_id, days, hours, minutes,
         print dataframe
 
 
-def process(project_id, list_resources, list_metrics, query, metric_id, days, hours, minutes,
+def process(keyfile, project_id, list_resources, list_metrics, query, metric_id, days, hours, minutes,
             resource_filter, metric_filter, align, reduce, reduce_grouping, iloc00):
 
     if not project_id:
         error('--project_id not specified')
 
-    client = monitoring.Client(project=project_id)
+    if not keyfile:
+        # --keyfile not specified, use interactive `gcloud auth login`
+        client = monitoring.Client(project=project_id)
+    else:
+        client = monitoring.Client.from_service_account_json(keyfile)
 
     if list_resources:
         list_resource_descriptors(client)
@@ -261,6 +266,7 @@ def main():
         args_dict['reduce_grouping'] = args_dict['reduce_grouping'].split(',')
 
     process(
+        args_dict['keyfile'],
         args_dict['project_id'],
         args_dict['list_resources'],
         args_dict['list_metrics'],
