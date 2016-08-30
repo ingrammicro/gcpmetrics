@@ -2,6 +2,7 @@
 
 import os
 import sys
+import shutil
 import argparse
 import datetime
 import yaml
@@ -11,24 +12,27 @@ PARSER = argparse.ArgumentParser(
     description=__doc__,
     formatter_class=argparse.RawDescriptionHelpFormatter
 )
-PARSER.add_argument('--keyfile', help='Goolge Cloud Platform service account key file', metavar='FILE')
-PARSER.add_argument('--preset_id', help='Preset ID, like http_response_5xx_sum, etc.', metavar='ID')
-PARSER.add_argument('--project_id', help='Project ID.', metavar='ID')
-PARSER.add_argument('--list_resources', default=False, action='store_true', help='List monitored resource descriptors and exit.')
-PARSER.add_argument('--list_metrics', default=False, action='store_true', help='List available metric descriptors and exit.')
-PARSER.add_argument('--query', default=False, action='store_true', help='Run the time series query.')
-PARSER.add_argument('--service_id', help='Service ID.', metavar='ID')
-PARSER.add_argument('--since_dawn', default=False, action='store_true', help='Calculate delta since the dawn of time.')
-PARSER.add_argument('--metric_id', help='Metric ID as defined by Google Monitoring API..', metavar='ID')
+
+PARSER.add_argument('--config', help='Local configuration *.yaml file to be used.', metavar='FILE')
+PARSER.add_argument('--init-config', help='Location of configuration files.', metavar='DIR')
+PARSER.add_argument('--keyfile', help='Goolge Cloud Platform service account key file.', metavar='FILE')
+PARSER.add_argument('--preset', help='Preset ID, like http_response_5xx_sum, etc.', metavar='ID')
+PARSER.add_argument('--project', help='Project ID.', metavar='ID')
+PARSER.add_argument('--list-resources', default=None, action='store_true', help='List monitored resource descriptors and exit.')
+PARSER.add_argument('--list-metrics', default=None, action='store_true', help='List available metric descriptors and exit.')
+PARSER.add_argument('--query', default=None, action='store_true', help='Run the time series query.')
+PARSER.add_argument('--service', help='Service ID.', metavar='ID')
+PARSER.add_argument('--infinite', default=None, action='store_true', help='Calculate time delta since the dawn of time.')
+PARSER.add_argument('--metric', help='Metric ID as defined by Google Monitoring API..', metavar='ID')
 PARSER.add_argument('--days', default=0, help='Days from now to calculate the query start date.', metavar='INT')
 PARSER.add_argument('--hours', default=0, help='Hours from now to calculate the query start date.', metavar='INT')
 PARSER.add_argument('--minutes', default=0, help='Minutes from now to calculate the query start date.', metavar='INT')
-PARSER.add_argument('--resource_filter', default=None, help='Filter of resources in the var:val[,var:val] format.', metavar='S')
-PARSER.add_argument('--metric_filter', default=None, help='Filter of metrics in the var:val[,var:val] format.', metavar='S')
+PARSER.add_argument('--resource-filter', default=None, help='Filter of resources in the var:val[,var:val] format.', metavar='S')
+PARSER.add_argument('--metric-filter', default=None, help='Filter of metrics in the var:val[,var:val] format.', metavar='S')
 PARSER.add_argument('--align', default=None, help='Alignment of data ALIGN_NONE, ALIGN_SUM. etc.', metavar='A')
 PARSER.add_argument('--reduce', default=None, help='Reduce of data REDUCE_NONE, REDUCE_SUM, etc.', metavar='R')
-PARSER.add_argument('--reduce_grouping', default=None, help='Reduce grouping in the var1[,var2] format.', metavar='R')
-PARSER.add_argument('--iloc00', default=False, action='store_true', help='Print value from the table index [0:0] only.')
+PARSER.add_argument('--reduce-grouping', default=None, help='Reduce grouping in the var1[,var2] format.', metavar='R')
+PARSER.add_argument('--iloc00', default=None, action='store_true', help='Print value from the table index [0:0] only.')
 
 
 def error(message):
@@ -121,10 +125,10 @@ def perform_query(client, metric_id, days, hours, minutes,
                   resource_filter, metric_filter, align, reduce, reduce_grouping, iloc00):
 
     if (days + hours + minutes) == 0:
-        error('No time interval specified. Please use --since_dawn or --days, --hours, --minutes')
+        error('No time interval specified. Please use --infinite or --days, --hours, --minutes')
 
     if not metric_id:
-        error('Metric ID is required for query, please use --metric_id')
+        error('Metric ID is required for query, please use --metric')
 
     # yes, ugly, but we need to fix this method...
     monitoring.query._build_label_filter = _build_label_filter
@@ -183,7 +187,7 @@ def process(keyfile, project_id, list_resources, list_metrics, query, metric_id,
             resource_filter, metric_filter, align, reduce, reduce_grouping, iloc00):
 
     if not project_id:
-        error('--project_id not specified')
+        error('--project not specified')
 
     if not keyfile:
         # --keyfile not specified, use interactive `gcloud auth login`
@@ -202,42 +206,97 @@ def process(keyfile, project_id, list_resources, list_metrics, query, metric_id,
                       resource_filter, metric_filter, align, reduce, reduce_grouping, iloc00)
 
     else:
-        error('No operation specified. Please choose one of --list_resources, --list_metrics, --query')
+        error('No operation specified. Please choose one of --list-resources, --list-metrics, --query')
 
 
-def apply_presets(args_dict):
+def init_config(args_dict):
 
-    if not args_dict['preset_id']:
-        return args_dict
-
-    preset_id = args_dict['preset_id']
+    _dir = args_dict['init_config']
+    if not os.path.exists(_dir):
+        print 'Creating folder: {}...'.format(_dir)
+        os.makedirs(_dir)
 
     _path = os.path.split(os.path.abspath(__file__))[0]
-    stream = file(os.path.join(_path, 'presets.yaml'), 'r')
-    presets = yaml.load(stream)
-    if preset_id not in presets:
-        error('Preset {} not found in {}'.format(preset_id, presets.keys()))
-    preset = presets[preset_id]
+    _from = os.path.join(_path, 'config-template.yaml')
+    _to = os.path.join(_dir, 'config.yaml')
+    print 'Creating configuration file: {}...'.format(_to)
 
-    def calc_key(_key, _from, _to):
-        if _key in _from:
-            return _from[_key]
-        return _to[_key]
+    shutil.copyfile(_from, _to)
 
-    _ret = {}
+    _path = os.path.split(os.path.abspath(__file__))[0]
+    _from = os.path.join(_path, 'keyfile-template.json')
+    _to = os.path.join(_dir, 'keyfile.json')
+    print 'Creating key file: {}...'.format(_to)
+    shutil.copyfile(_from, _to)
+
+    print 'Configuration initialized, use --config to reference it.'
+    return 0
+
+
+def apply_configs(args_dict):
+
+    _path = os.path.split(os.path.abspath(__file__))[0]
+    stream = file(os.path.join(_path, 'global.yaml'), 'r')
+    global_config = yaml.load(stream)
+
+    local_config = {}
+    if args_dict['config']:
+        stream = file(args_dict['config'], 'r')
+        local_config = yaml.load(stream)
+
+    _ret = args_dict
     for p in args_dict.keys():
-        _ret[p] = calc_key(p, preset, args_dict)
+        if _ret[p] is None:
+            if p in local_config:
+                _ret[p] = local_config[p]
+
+    _ret = args_dict
+    for p in args_dict.keys():
+        if _ret[p] is None:
+            if p in global_config:
+                _ret[p] = global_config[p]
+
+    if not args_dict['preset']:
+        return _ret
+
+    preset_id = args_dict['preset']
+
+    local_preset = None
+    if preset_id in local_config:
+        local_preset = local_config[preset_id]
+
+    global_preset = None
+    if preset_id in global_config:
+        global_preset = global_config[preset_id]
+
+    if local_preset is None and global_preset is None:
+        error('Preset {} not found in either local or global configudation files'.format(preset_id))
+
+    if local_preset:
+        for p in args_dict.keys():
+            if _ret[p] is None:
+                if p in local_preset:
+                    _ret[p] = local_preset[p]
+
+    if global_preset:
+        for p in args_dict.keys():
+            if _ret[p] is None:
+                if p in global_preset:
+                    _ret[p] = global_preset[p]
 
     return _ret
 
 
 def main():
-    _args = PARSER.parse_args()
-    args_dict = vars(_args)
-    args_dict = apply_presets(args_dict)
+    args_dict = vars(PARSER.parse_args())
 
-    if args_dict['since_dawn']:
-        # October 6, 2011 = Google Cloud Platform launch date ;-)
+    if args_dict['init_config']:
+        return init_config(args_dict)
+
+    args_dict = apply_configs(args_dict)
+
+    if args_dict['infinite']:
+        # October 6, 2011 = Google Cloud Platform launch date :-)
         dawn = datetime.datetime.strptime('2011-10-06', '%Y-%m-%d')
         now = datetime.datetime.utcnow()
         delta = now - dawn
@@ -245,9 +304,9 @@ def main():
         args_dict['hours'] = 0
         args_dict['minutes'] = 0
 
-    # --service_id XXX extends resources filter as 'module_id:XXX'
-    if args_dict['service_id']:
-        append = 'module_id:{}'.format(args_dict['service_id'])
+    # --service {ID} extends resources filter as 'module_id:{ID}'
+    if args_dict['service']:
+        append = 'module_id:{}'.format(args_dict['service'])
         if args_dict['resource_filter'] is None:
             args_dict['resource_filter'] = append
         else:
@@ -272,11 +331,11 @@ def main():
 
     process(
         args_dict['keyfile'],
-        args_dict['project_id'],
+        args_dict['project'],
         args_dict['list_resources'],
         args_dict['list_metrics'],
         args_dict['query'],
-        args_dict['metric_id'],
+        args_dict['metric'],
         int(args_dict['days']),
         int(args_dict['hours']),
         int(args_dict['minutes']),

@@ -1,0 +1,70 @@
+Replace this file with your Google Cloyd Platform service account key file.
+More detauls: https://cloud.google.com/vision/docs/common/auth
+Key file contains JSON that looks something like this:
+
+{
+  "type": "service_account",
+  "project_id": "...",
+   ...
+}
+~                                                                                                                                                                                                                 
+~                                                                                                                                                                                                                 
+~                                                                                                                                                                                                                 
+~                                                                                                                                                                                                                 
+~                                                                                                                                                                                                                 
+~                                                                                                                                                                                                                 
+~                                                                                                                                                                                                                 
+~                                                                                                                                                                                                                 
+~                                                                                                                                                                                                                 
+~                                                                                                                                                                                                                 
+~                                                                                                                                                                                                                 
+~                                                                                                                                                                                                                 
+~                                                                                                                                                                                                                 
+~                                                                                                                                                                                                                 
+~                                                                                                                                                                                                                 
+~                                                                                                                                                                                                                 
+~                                                                                                                                                                                                                 
+~                                                                                                                                                                                                                 
+~                                                                                                                                                                                                                 
+~                                                                                                                                                                                                                 
+~                                                                                                                                                                                                                 
+~                                                                                                                                                                                                                 
+~                                                                                                                                                                                                                 
+~                                                                                                                                                                                                                 
+~                                                                                                                                                                                                                 
+~                                                                                                                                                                                                                 
+~                                                                                                                                                                                                                 
+~                                                                                                                                                                                                                 
+~                                                                                                                                                                                                                 
+~                                                                                                                                                                                                                 
+~                                                                                                                                                                                                                 
+~                                                                                                                                                                                                                 
+~                                                                                                                                                                                                                 
+~                                                                                                                                                                                                                 
+~                                                                                                                                                                                                                 
+~                                                                                                                                                                                                                 
+~                                                                                                                                                                                                                 
+~                                                                                                                                                                                                                 
+~                                                                                                                                                                                                                 
+~                                                                                                                                                                                                                 
+~                                                                                                                                                                                                                 
+~                                                                                                                                                                                                                 
+"./keyfile.json" 12L, 2344C
+
+
+
+
+
+
+
+ce_account",
+  "project_id": "imc-hub-us-central-demo1",
+  "private_key_id": "463e51219a069a0d338bb10a23eae5e01dd21b9e",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQDKTtclwpmja/Q7\nxY8qnye5KCSPuy42EoOQfZvJfvZoIN9HZ8eKXoeYuDB5KZjJFVxt3th+P+H0Pyqj\nL+wpI7iIBr1tC7viRxuBbp+sgEdkwQW
+  "client_email": "imc-hub-us-central-demo1@appspot.gserviceaccount.com",
+  "client_id": "111368010698332321277",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://accounts.google.com/o/oauth2/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/imc-hub-us-central-demo1%40appspot.gserviceaccount.com"
+}

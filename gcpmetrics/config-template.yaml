@@ -1,0 +1,5 @@
+
+keyfile: ./keyfile.json
+project: imc-hub-us-central-demo1
+service: transactions-mediator
+
