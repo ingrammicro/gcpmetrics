@@ -54,6 +54,7 @@ def version():
 setup(
     name=PACKAGE_NAME,
     version=version(),
+    version_getter=version,
     author='Odin - Ingram Micro Company',
     author_email='aps@odin.com',
     description=DESCRIPTION,
