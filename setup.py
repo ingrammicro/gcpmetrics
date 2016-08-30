@@ -51,10 +51,17 @@ def version():
     return ver.strip()
 
 
+def odin_version():
+    import odintools
+    ver = version()
+    package_ver, build_num = ver.rsplit('.', 1)
+    return odintools.version(package_ver, build_num)
+
+
 setup(
     name=PACKAGE_NAME,
     version=version(),
-    version_getter=version,
+    version_getter=odin_version,
     author='Odin - Ingram Micro Company',
     author_email='aps@odin.com',
     description=DESCRIPTION,
