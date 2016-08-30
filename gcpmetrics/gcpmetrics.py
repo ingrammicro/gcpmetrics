@@ -183,7 +183,7 @@ def perform_query(client, metric_id, days, hours, minutes,
         print dataframe
 
 
-def process(keyfile, project_id, list_resources, list_metrics, query, metric_id, days, hours, minutes,
+def process(keyfile, config, project_id, list_resources, list_metrics, query, metric_id, days, hours, minutes,
             resource_filter, metric_filter, align, reduce, reduce_grouping, iloc00):
 
     if not project_id:
@@ -193,7 +193,12 @@ def process(keyfile, project_id, list_resources, list_metrics, query, metric_id,
         # --keyfile not specified, use interactive `gcloud auth login`
         client = monitoring.Client(project=project_id)
     else:
-        client = monitoring.Client.from_service_account_json(keyfile)
+        _file = keyfile
+        # file is relative to config (if present)
+        if config:
+            _file = os.path.join(os.path.split(config)[0], keyfile)
+
+        client = monitoring.Client.from_service_account_json(_file)
 
     if list_resources:
         list_resource_descriptors(client)
@@ -331,6 +336,7 @@ def main():
 
     process(
         args_dict['keyfile'],
+        args_dict['config'],
         args_dict['project'],
         args_dict['list_resources'],
         args_dict['list_metrics'],
