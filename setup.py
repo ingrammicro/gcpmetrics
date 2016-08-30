@@ -4,7 +4,6 @@ import os
 from setuptools import setup
 
 PACKAGE_NAME = 'gcpmetrics'
-PACKAGE_VERSION = '1.0'
 DESCRIPTION = 'Google Cloud Platform Metrics'
 
 
@@ -42,17 +41,19 @@ def get_install_requires():
     with open('requirements.txt') as f:
         return f.readlines()
 
-
 def version():
-    import odintools
-
-    return odintools.version(PACKAGE_VERSION, os.environ.get('BUILD_NUMBER'))
+    _path = os.path.split(os.path.abspath(__file__))[0]
+    _file = os.path.join(_path, 'version.txt')
+    f = open(_file, 'r')
+    ver = f.read()
+    f.close()
+    return ver.strip()
 
 setup(
     name=PACKAGE_NAME,
+    version=version(),
     author='Odin - Ingram Micro Company',
     author_email='aps@odin.com',
-    version_getter=version,
     description=DESCRIPTION,
     url='https://www.odin.com',
     license='BSD',
@@ -60,7 +61,6 @@ setup(
     package_data=get_package_data(),
     install_requires=get_install_requires(),
     zip_safe=False,
-    odintools=True,
     entry_points={
         'console_scripts': ['gcpmetrics = gcpmetrics.gcpmetrics:main']
     }
