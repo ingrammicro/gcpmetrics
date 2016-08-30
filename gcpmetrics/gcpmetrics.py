@@ -163,11 +163,16 @@ def perform_query(client, metric_id, days, hours, minutes,
     dataframe = query.as_dataframe()
 
     if iloc00:
-        # print "top left" element of the table only, asusming it's the only one left
-        # see http://pandas.pydata.org/pandas-docs/stable/10min.html for details
-        assert len(dataframe) == 1
-        assert len(dataframe.iloc[0]) == 1
-        print dataframe.iloc[0, 0]
+        if len(dataframe) == 0:
+            # No dataset = zero
+            print '0'
+
+        else:
+            # print "top left" element of the table only, asusming it's the only one left
+            # see http://pandas.pydata.org/pandas-docs/stable/10min.html for details
+            assert len(dataframe) == 1
+            assert len(dataframe.iloc[0]) == 1
+            print dataframe.iloc[0, 0]
 
     else:
         # print the whole dataset
