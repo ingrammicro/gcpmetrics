@@ -1,0 +1,51 @@
+
+query: true
+
+http_response_xxx_all:
+    query: true
+    infinite: true
+    metric: 'appengine.googleapis.com/http/server/response_count'
+    metric_filter: 'response_code_greaterequal:0,response_code_less:600'
+    align: 'ALIGN_SUM'
+
+http_response_xxx_sum:
+    query: true
+    infinite: true
+    metric: 'appengine.googleapis.com/http/server/response_count'
+    metric_filter: 'response_code_greaterequal:0,response_code_less:600'
+    align: 'ALIGN_SUM'
+    reduce: 'REDUCE_SUM'
+    iloc00: True
+
+http_response_2xx_all:
+    query: true
+    infinite: true
+    metric: 'appengine.googleapis.com/http/server/response_count'
+    metric_filter: 'response_code_greaterequal:200,response_code_less:300'
+    align: 'ALIGN_SUM'
+
+http_response_2xx_sum:
+    query: true
+    infinite: true
+    metric: 'appengine.googleapis.com/http/server/response_count'
+    metric_filter: 'response_code_greaterequal:200,response_code_less:300'
+    align: 'ALIGN_SUM'
+    reduce: 'REDUCE_SUM'
+    iloc00: True
+
+http_response_5xx_all:
+    query: true
+    infinite: true
+    metric: 'appengine.googleapis.com/http/server/response_count'
+    metric_filter: 'response_code_greaterequal:500,response_code_less:600'
+    align: 'ALIGN_SUM'
+
+http_response_5xx_sum:
+    query: true
+    infinite: true
+    metric: 'appengine.googleapis.com/http/server/response_count'
+    metric_filter: 'response_code_greaterequal:500,response_code_less:600'
+    align: 'ALIGN_SUM'
+    reduce: 'REDUCE_SUM'
+    iloc00: True
+
