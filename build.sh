@@ -35,5 +35,8 @@ printf "${RED_COLOR}"
 flake8 .
 printf "${NO_COLOR}"
 
-# build doc and src packages
-python setup.py publish $@
+if [ -z "$TRAVIS_BUILD_NUMBER" ]
+then
+    # build doc and src packages
+    python setup.py publish $@
+fi
