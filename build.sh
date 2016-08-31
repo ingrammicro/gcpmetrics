@@ -6,9 +6,14 @@ set -e
 # making sure we run under Jenkins
 if [ -z "$BUILD_NUMBER" ]
 then
-    echo "Error: BUILD_NUMBER variable is not defined (script was designed to run under Jenkins)."
-    echo "Terminating..."
-    exit 1
+    if [ -z "$TRAVIS_BUILD_NUMBER" ]
+    then
+        echo "Error: BUILD_NUMBER and TRAVIS_BUILD_NUMBER not defined!"
+        echo "This  script was designed to run in either Jenkins CI or Travis CI."
+        echo "Terminating..."
+        exit 1
+    fi
+    export BUILD_NUMBER=$TRAVIS_BUILD_NUMBER
 fi
 
 # generating version identifier
