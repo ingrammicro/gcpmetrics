@@ -13,8 +13,8 @@ fi
 
 # generating version identifier
 PACKAGE_VERSION="1.0.$BUILD_NUMBER"
-echo "Generating version.txt file ($PACKAGE_VERSION)..."
-echo "$PACKAGE_VERSION" > version.txt
+echo "Generating VERSION file ($PACKAGE_VERSION)..."
+echo "$PACKAGE_VERSION" > VERSION
 
 # version information is here for logging purposes:
 # python 2.7+ is required to package properly
