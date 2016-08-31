@@ -1,3 +1,4 @@
+twine
 flake8
 gcloud
 pandas
