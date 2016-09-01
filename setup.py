@@ -9,7 +9,8 @@ DESCRIPTION = 'Google Cloud Platform Metrics'
 
 def __find_package_data(folder):
     add_extensions = ['.schema', '.html', '.js', '.css', '.xml', '.jinja', '.bat', '.yaml',
-                      '.json', '.png', '.jpg', '.po', '.txt', 'cert.pem', 'key.pem', '.zip']
+                      '.json', '.png', '.jpg', '.po', '.txt', 'cert.pem', 'key.pem', '.zip',
+                      'VERSION']
 
     file_masks = []
     for subdir, dirs, files in os.walk(folder):
@@ -26,8 +27,8 @@ def __find_package_data(folder):
 
 
 def get_packages():
-    bvt_dirs = ['gcpmetrics']
-    return bvt_dirs
+    dirs = ['gcpmetrics']
+    return dirs
 
 
 def get_package_data():
@@ -44,7 +45,7 @@ def get_install_requires():
 
 def version():
     _path = os.path.split(os.path.abspath(__file__))[0]
-    _file = os.path.join(_path, './gcpmetrics/VERSION')
+    _file = os.path.join(_path, 'VERSION')
     f = open(_file, 'r')
     ver = f.read()
     f.close()
