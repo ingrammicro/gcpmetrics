@@ -13,8 +13,9 @@ PARSER = argparse.ArgumentParser(
     formatter_class=argparse.RawDescriptionHelpFormatter
 )
 
-PARSER.add_argument('--config', help='Local configuration *.yaml file to be used.', metavar='FILE')
+PARSER.add_argument('--version', default=None, action='store_true', help='Print gcpmetics version and exit.')
 PARSER.add_argument('--init-config', help='Location of configuration files.', metavar='DIR')
+PARSER.add_argument('--config', help='Local configuration *.yaml file to be used.', metavar='FILE')
 PARSER.add_argument('--keyfile', help='Goolge Cloud Platform service account key file.', metavar='FILE')
 PARSER.add_argument('--preset', help='Preset ID, like http_response_5xx_sum, etc.', metavar='ID')
 PARSER.add_argument('--project', help='Project ID.', metavar='ID')
@@ -22,8 +23,8 @@ PARSER.add_argument('--list-resources', default=None, action='store_true', help=
 PARSER.add_argument('--list-metrics', default=None, action='store_true', help='List available metric descriptors and exit.')
 PARSER.add_argument('--query', default=None, action='store_true', help='Run the time series query.')
 PARSER.add_argument('--service', help='Service ID.', metavar='ID')
-PARSER.add_argument('--infinite', default=None, action='store_true', help='Calculate time delta since the dawn of time.')
 PARSER.add_argument('--metric', help='Metric ID as defined by Google Monitoring API..', metavar='ID')
+PARSER.add_argument('--infinite', default=None, action='store_true', help='Calculate time delta since the dawn of time.')
 PARSER.add_argument('--days', default=0, help='Days from now to calculate the query start date.', metavar='INT')
 PARSER.add_argument('--hours', default=0, help='Hours from now to calculate the query start date.', metavar='INT')
 PARSER.add_argument('--minutes', default=0, help='Minutes from now to calculate the query start date.', metavar='INT')
@@ -292,8 +293,21 @@ def apply_configs(args_dict):
     return _ret
 
 
+def version():
+    _path = os.path.split(os.path.abspath(__file__))[0]
+    _file = os.path.join(_path, './VERSION')
+    f = open(_file, 'r')
+    ver = f.read()
+    f.close()
+    return ver.strip()
+
+
 def main():
     args_dict = vars(PARSER.parse_args())
+
+    if args_dict['version']:
+        print version()
+        return 0
 
     if args_dict['init_config']:
         return init_config(args_dict)
