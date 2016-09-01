@@ -25,7 +25,7 @@ $ pip install gcpmetrics
 You need to be authenticated with Google Cloud API to run this tool. Two ways of authentication 
 are supported: (a) interactive login and (b) service account token. 
   
-### a. Interactive login
+### a. Interactive
 
 If you’re developing locally, the easiest way to authenticate is using the Google Cloud SDK:
 
@@ -33,7 +33,7 @@ If you’re developing locally, the easiest way to authenticate is using the Goo
 $ gcloud auth login
 ```
 
-### b. Service acount token
+### b. Service acount
 
 If you’re running your application elsewhere, you should download a service account
 JSON keyfile and point to it using --keyfile parameter.

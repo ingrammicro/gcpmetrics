@@ -23,7 +23,7 @@ PARSER.add_argument('--list-resources', default=None, action='store_true', help=
 PARSER.add_argument('--list-metrics', default=None, action='store_true', help='List available metric descriptors and exit.')
 PARSER.add_argument('--query', default=None, action='store_true', help='Run the time series query.')
 PARSER.add_argument('--service', help='Service ID.', metavar='ID')
-PARSER.add_argument('--metric', help='Metric ID as defined by Google Monitoring API..', metavar='ID')
+PARSER.add_argument('--metric', help='Metric ID as defined by Google Monitoring API.', metavar='ID')
 PARSER.add_argument('--infinite', default=None, action='store_true', help='Calculate time delta since the dawn of time.')
 PARSER.add_argument('--days', default=0, help='Days from now to calculate the query start date.', metavar='INT')
 PARSER.add_argument('--hours', default=0, help='Hours from now to calculate the query start date.', metavar='INT')
@@ -225,14 +225,14 @@ def init_config(args_dict):
     _path = os.path.split(os.path.abspath(__file__))[0]
     _from = os.path.join(_path, 'config-template.yaml')
     _to = os.path.join(_dir, 'config.yaml')
-    print 'Creating configuration file: {}...'.format(_to)
+    print 'Creating configuration file: {}'.format(_to)
 
     shutil.copyfile(_from, _to)
 
     _path = os.path.split(os.path.abspath(__file__))[0]
     _from = os.path.join(_path, 'keyfile-template.json')
     _to = os.path.join(_dir, 'keyfile.json')
-    print 'Creating key file: {}...'.format(_to)
+    print 'Creating key file: {}'.format(_to)
     shutil.copyfile(_from, _to)
 
     print 'Configuration initialized, use --config to reference it.'
