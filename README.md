@@ -377,7 +377,7 @@ optional arguments:
   --list-metrics       List available metric descriptors and exit.
   --query              Run the time series query.
   --service ID         Service ID.
-  --metric ID          Metric ID as defined by Google Monitoring API..
+  --metric ID          Metric ID as defined by Google Monitoring API.
   --infinite           Calculate time delta since the dawn of time.
   --days INT           Days from now to calculate the query start date.
   --hours INT          Hours from now to calculate the query start date.

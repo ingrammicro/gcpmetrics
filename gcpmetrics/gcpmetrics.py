@@ -132,6 +132,7 @@ def perform_query(client, metric_id, days, hours, minutes,
         error('Metric ID is required for query, please use --metric')
 
     # yes, ugly, but we need to fix this method...
+    # at least until https://github.com/GoogleCloudPlatform/gcloud-python/pull/2234 is not merged
     monitoring.query._build_label_filter = _build_label_filter
 
     query = client.query(
