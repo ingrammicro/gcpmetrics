@@ -17,7 +17,7 @@ or Nagios (https://www.nagios.org/).
 You can install this tool simply by running
 
 ```
-$ pip install gcpmetrics
+$ pip install --upgrade gcpmetrics
 ```
 
 ## 3. Authentication
