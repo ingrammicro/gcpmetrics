@@ -44,7 +44,7 @@ def get_install_requires():
 
 def version():
     _path = os.path.split(os.path.abspath(__file__))[0]
-    _file = os.path.join(_path, 'VERSION')
+    _file = os.path.join(_path, './gcpmetrics/VERSION')
     f = open(_file, 'r')
     ver = f.read()
     f.close()

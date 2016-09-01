@@ -19,7 +19,7 @@ fi
 # generating version identifier
 PACKAGE_VERSION="1.0.$BUILD_NUMBER"
 echo "Generating VERSION file ($PACKAGE_VERSION)..."
-echo "$PACKAGE_VERSION" > VERSION
+echo "$PACKAGE_VERSION" > ./gcpmetrics/VERSION
 
 if [ -z "$TRAVIS_BUILD_NUMBER" ]
 then
