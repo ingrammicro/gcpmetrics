@@ -1,4 +1,4 @@
-# Google Cloud Monitoring API v3 Command-Line Tool
+# Google Cloud Monitoring API Command Line
 
 ## 1. Overview
 
@@ -263,11 +263,84 @@ response_code                                500  500
 Note that only service 'default' data was returned this time. 
 More on filters: https://cloud.google.com/monitoring/api/v3/filters
 
-## 12. Configs and Presets
+## 12. Configurations
 
-To be described.
+When monitoring multiple metrics across multuple projects is is handy to have command line 
+parameters predefined (instead of writing the whole set of parameters every time). This could
+be achieved with configuration files.
 
-## 13. Supported Parameters
+You can init your own configuration by running the following command: 
+```
+$ gcpmetrics --init-config ./folder
+
+Creating folder: ./folder
+Creating configuration file: ./folder/config.yaml
+Creating (empty) key file: ./folder/keyfile.json
+Configuration created, use '--config ./folder' to reference it.
+```
+
+The configuration file looks like the below:
+
+```
+$ cat ./folder/config.yaml
+
+keyfile: ./keyfile.json
+project: my-unique-project-id
+service: default
+
+http_response_5xx_sum:
+    query: true
+    infinite: true
+    metric: 'appengine.googleapis.com/http/server/response_count'
+    metric_filter: 'response_code_greaterequal:500,response_code_less:600'
+    align: 'ALIGN_SUM'
+    reduce: 'REDUCE_SUM'
+    iloc00: True
+```
+
+which is a yaml file containing the same command line parameters as the tool itself.
+By referencing this file, tool will pickup parameters defined in it, i.e.
+
+```
+$ gcpmetrics --config ./folder/config.yaml
+```
+
+will be interpreted as
+
+```
+$ gcpmetrics --keyfile ./keyfile.json \
+             --project my-unique-project-id \
+             --service default
+```
+
+based on the configuration file defined above.
+
+## 13. Presets
+
+It is also possible to refer to the configuration presets defined in the configuraiton file.
+Based on the example configuration file below, where "http_response_5xx_sum" is defined,
+it is possible to run the following command:
+ 
+```
+$ gcpmetrics --init-config ./folder --preset http_response_5xx_sum
+```
+
+which will be interpreted as
+
+```
+$ gcpmetrics --keyfile ./keyfile.json \
+             --project my-unique-project-id \
+             --service default \
+             --query: true \
+             --infinite: true \
+             --metric: appengine.googleapis.com/http/server/response_count \
+             --metric_filter response_code_greaterequal:500,response_code_less:600 \
+             --align ALIGN_SUM \
+             --reduce REDUCE_SUM \
+             --iloc00 True
+```
+
+## 14. Supported Parameters
 
 ```
 $ gcpmetrics --help

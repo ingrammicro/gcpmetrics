@@ -3,3 +3,12 @@ keyfile: ./keyfile.json
 project: my-unique-project-id
 service: default
 
+http_response_5xx_sum:
+    query: true
+    infinite: true
+    metric: 'appengine.googleapis.com/http/server/response_count'
+    metric_filter: 'response_code_greaterequal:500,response_code_less:600'
+    align: 'ALIGN_SUM'
+    reduce: 'REDUCE_SUM'
+    iloc00: True
+

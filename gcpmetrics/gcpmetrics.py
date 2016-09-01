@@ -219,7 +219,7 @@ def init_config(args_dict):
 
     _dir = args_dict['init_config']
     if not os.path.exists(_dir):
-        print 'Creating folder: {}...'.format(_dir)
+        print 'Creating folder: {}'.format(_dir)
         os.makedirs(_dir)
 
     _path = os.path.split(os.path.abspath(__file__))[0]
@@ -232,10 +232,10 @@ def init_config(args_dict):
     _path = os.path.split(os.path.abspath(__file__))[0]
     _from = os.path.join(_path, 'keyfile-template.json')
     _to = os.path.join(_dir, 'keyfile.json')
-    print 'Creating key file: {}'.format(_to)
+    print 'Creating (empty) key file: {}'.format(_to)
     shutil.copyfile(_from, _to)
 
-    print 'Configuration initialized, use --config to reference it.'
+    print "Configuration created, use '--config {}' to reference it.".format(_dir)
     return 0
 
 
