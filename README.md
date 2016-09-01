@@ -30,7 +30,7 @@ are supported: (a) interactive login and (b) service account token.
   
 ### a. Interactive
 
-If you’re developing locally, the easiest way to authenticate is using the Google Cloud SDK:
+If you're developing locally, the easiest way to authenticate is using the Google Cloud SDK:
 
 ```
 $ gcloud auth login
@@ -38,7 +38,7 @@ $ gcloud auth login
 
 ### b. Service acount
 
-If you’re running your application elsewhere, you should download a service account
+If you're running your application elsewhere, you should download a service account
 JSON keyfile and point to it using --keyfile parameter.
 
 ```
