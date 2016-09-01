@@ -68,7 +68,7 @@ setup(
     author='Odin - Ingram Micro Company',
     author_email='aps@odin.com',
     description=DESCRIPTION,
-    url='https://www.odin.com',
+    url='https://github.com/odin-public/gcpmetrics',
     license='BSD',
     packages=get_packages(),
     package_data=get_package_data(),

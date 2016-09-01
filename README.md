@@ -352,6 +352,9 @@ usage: gcpmetrics [-h] [--version] [--init-config DIR] [--config FILE]
                   [--minutes INT] [--resource-filter S] [--metric-filter S]
                   [--align A] [--reduce R] [--reduce-grouping R] [--iloc00]
 
+Google Cloud Monitoring API Command Line
+Website: https://github.com/odin-public/gcpmetrics
+
 optional arguments:
   -h, --help           show this help message and exit
   --version            Print gcpmetics version and exit.
