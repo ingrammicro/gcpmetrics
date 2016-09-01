@@ -10,14 +10,18 @@ DESCRIPTION = 'Google Cloud Platform Metrics'
 def __find_package_data(folder):
     add_extensions = ['.schema', '.html', '.js', '.css', '.xml', '.jinja', '.bat', '.yaml',
                       '.json', '.png', '.jpg', '.po', '.txt', 'cert.pem', 'key.pem', '.zip',
-                      'VERSION']
+                      'version']
 
     file_masks = []
     for subdir, dirs, files in os.walk(folder):
         for f in files:
+            filename = f
             name = os.path.join(subdir, f)
             f = f.lower()
-            if f.endswith(tuple(add_extensions)):
+            if f in add_extensions:
+                file_name = os.path.join(os.path.split(path)[0], filename)
+                file_masks.append(file_name)
+            elif f.endswith(tuple(add_extensions)):
                 path = name[len(folder) + 1:]
                 file_mask = os.path.join(os.path.split(path)[0], '*' + os.path.splitext(path)[1])
                 if file_mask not in file_masks:
@@ -27,14 +31,13 @@ def __find_package_data(folder):
 
 
 def get_packages():
-    dirs = ['gcpmetrics']
+    dirs = [PACKAGE_NAME]
     return dirs
 
 
 def get_package_data():
     data = {}
-    found = __find_package_data('gcpmetrics')
-    data['gcpmetrics'] = found
+    data[PACKAGE_NAME] = __find_package_data(PACKAGE_NAME)
     return data
 
 
@@ -74,6 +77,6 @@ setup(
     odintools=True,
     zip_safe=False,
     entry_points={
-        'console_scripts': ['gcpmetrics = gcpmetrics.gcpmetrics:main']
+        'console_scripts': ['{0} = {0}.{0}:main'.format(PACKAGE_NAME)]
     }
 )
