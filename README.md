@@ -209,7 +209,10 @@ $ gcpmetrics --keyfile ./keyfile.json \
     --metric-filter \
     response_code_greaterequal:500,response_code_less:600
 
-QUERY: metric.type = "appengine.googleapis.com/http/server/response_count" AND metric.label.response_code < 600 AND metric.label.response_code >= 500
+QUERY: metric.type = "appengine.googleapis.com/http/server/response_count" \
+        AND metric.label.response_code < 600 \
+        AND metric.label.response_code >= 500
+
 resource_type                            gae_app
 project_id                  my-unique-project-id                              
 module_id                                default                   service2   
@@ -224,12 +227,12 @@ response_code                                500  500                   501
 
 The following operations are supported
       
-  - '{key}_prefix:{value}' becomes '{key} = starts_with("{value}")'
-  - '{key}_suffix:{value}' becomes '{key} = ends_with("{value}")'
-  - '{key}_greater:{value}' becomes '{key} > {value}'
-  - '{key}_greaterequal:{value}' becomes '{key} >= {value}'
-  - '{key}_less:{value}' becomes '{key} < {value}'
-  - '{key}_lessequal:{value}' becomes '{key} <= {value}'
+  - ```'{key}_prefix:{value}'``` becomes ```'{key} = starts_with("{value}")'```
+  - ```'{key}_suffix:{value}'``` becomes ```'{key} = ends_with("{value}")'```
+  - ```'{key}_greater:{value}'``` becomes ```'{key} > {value}'```
+  - ```'{key}_greaterequal:{value}'``` becomes ```'{key} >= {value}'```
+  - ```'{key}_less:{value}'``` becomes ```'{key} < {value}'```
+  - ```'{key}_lessequal:{value}'``` becomes ```'{key} <= {value}'```
 
 More on filters: https://cloud.google.com/monitoring/api/v3/filters
 
@@ -247,7 +250,11 @@ $ gcpmetrics --keyfile ./keyfile.json \
     --metric-filter \
     response_code_greaterequal:500,response_code_less:600 \
 
-QUERY: metric.type = "appengine.googleapis.com/http/server/response_count" AND resource.label.module_id = "default" AND metric.label.response_code < 600 AND metric.label.response_code >= 500
+QUERY: metric.type = "appengine.googleapis.com/http/server/response_count" \
+        AND resource.label.module_id = "default" \
+        AND metric.label.response_code < 600 \
+        AND metric.label.response_code >= 500
+
 resource_type                            gae_app     
 project_id                  my-unique-project-id     
 module_id                                default     
@@ -340,7 +347,7 @@ $ gcpmetrics --keyfile ./keyfile.json \
              --iloc00 True
 ```
 
-## 14. Supported Parameters
+## 14. All Parameters
 
 ```
 $ gcpmetrics --help
