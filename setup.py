@@ -4,7 +4,7 @@ import os
 from setuptools import setup
 
 PACKAGE_NAME = 'gcpmetrics'
-DESCRIPTION = 'Google Cloud Platform Metrics'
+DESCRIPTION = 'Google Cloud Monitoring API: Command-Line Tool'
 
 
 def __find_package_data(folder):
@@ -19,8 +19,7 @@ def __find_package_data(folder):
             name = os.path.join(subdir, f)
             f = f.lower()
             if f in add_extensions:
-                file_name = os.path.join(os.path.split(path)[0], filename)
-                file_masks.append(file_name)
+                file_masks.append(filename)
             elif f.endswith(tuple(add_extensions)):
                 path = name[len(folder) + 1:]
                 file_mask = os.path.join(os.path.split(path)[0], '*' + os.path.splitext(path)[1])
