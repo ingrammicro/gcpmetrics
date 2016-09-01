@@ -1,4 +1,7 @@
 # Google Cloud Monitoring API Command Line
+[![Build Status](https://travis-ci.org/odin-public/gcpmetrics.svg?branch=master)](https://travis-ci.org/odin-public/gcpmetrics)
+
+Homepage: https://github.com/odin-public/gcpmetrics
 
 ## 1. Overview
 
@@ -272,7 +275,7 @@ More on filters: https://cloud.google.com/monitoring/api/v3/filters
 
 ## 12. Configurations
 
-When monitoring multiple metrics across multuple projects is is handy to have command line 
+When monitoring multiple metrics across multuple projects it is handy to have command line 
 parameters predefined (instead of writing the whole set of parameters every time). This could
 be achieved with configuration files.
 
