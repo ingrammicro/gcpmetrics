@@ -1,8 +1,8 @@
 # Google Cloud Monitoring API Command Line
 [![Build Status](https://travis-ci.org/odin-public/gcpmetrics.svg?branch=master)](https://travis-ci.org/odin-public/gcpmetrics)
 
-Homepage: https://github.com/odin-public/gcpmetrics
-PyPI: https://pypi.python.org/pypi/gcpmetrics
+- Homepage: https://github.com/odin-public/gcpmetrics
+- PyPI: https://pypi.python.org/pypi/gcpmetrics
 
 ## 1. Overview
 
