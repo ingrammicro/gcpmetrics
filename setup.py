@@ -4,7 +4,7 @@ import os
 from setuptools import setup
 
 PACKAGE_NAME = 'gcpmetrics'
-DESCRIPTION = 'Google Cloud Monitoring API: Command-Line Tool'
+DESCRIPTION = 'Google Cloud Monitoring API Command Line'
 
 
 def __find_package_data(folder):
