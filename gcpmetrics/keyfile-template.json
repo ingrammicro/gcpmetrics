@@ -1,6 +1,6 @@
-Replace this file with your Google Cloyd Platform service account key file.
-More detauls: https://cloud.google.com/vision/docs/common/auth
-Key file contains JSON that looks something like this:
+// Replace this file with your Google Cloud Platform service account key file.
+// More details: https://cloud.google.com/vision/docs/common/auth
+// Service account key looks like this:
 
 {
   "type": "service_account",
