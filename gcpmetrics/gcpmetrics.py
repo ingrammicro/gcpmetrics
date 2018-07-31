@@ -8,6 +8,8 @@ import datetime
 import yaml
 from gcloud import monitoring
 
+from __future__ import print_function
+
 PARSER = argparse.ArgumentParser(
     description='Google Cloud Monitoring API Command Line\nWebsite: https://github.com/odin-public/gcpmetrics',
     formatter_class=argparse.RawDescriptionHelpFormatter
@@ -38,49 +40,49 @@ PARSER.add_argument('--iloc00', default=None, action='store_true', help='Print v
 
 def error(message):
     sys.stderr.write('error: {}'.format(message))
-    print
-    print
+    print()
+    print()
     PARSER.print_help()
     sys.exit(1)
 
 
 def list_resource_descriptors(client):
-    print 'Monitored resource descriptors:'
+    print('Monitored resource descriptors:')
 
     index = 0
     for descriptor in client.list_resource_descriptors():
         index += 1
-        print 'Resource descriptor #{}'.format(index)
-        print '\tname: {}'.format(descriptor.name)
-        print '\ttype: {}'.format(descriptor.type)
-        print '\tdisplay_name: {}'.format(descriptor.display_name)
-        print '\tdescription: {}'.format(descriptor.description)
-        print '\tlabels:'
+        print('Resource descriptor #{}'.format(index))
+        print('\tname: {}'.format(descriptor.name))
+        print('\ttype: {}'.format(descriptor.type))
+        print('\tdisplay_name: {}'.format(descriptor.display_name))
+        print('\tdescription: {}'.format(descriptor.description))
+        print('\tlabels:')
         subindex = 0
         for label in descriptor.labels:
             subindex += 1
-            print '\t\tLabel descriptor #{}'.format(subindex)
-            print '\t\t\tkey: {}'.format(label.key)
-            print '\t\t\tvalue_type: {}'.format(label.value_type)
-            print '\t\t\tdescription: {}'.format(label.description)
+            print('\t\tLabel descriptor #{}'.format(subindex))
+            print('\t\t\tkey: {}'.format(label.key))
+            print('\t\t\tvalue_type: {}'.format(label.value_type))
+            print('\t\t\tdescription: {}'.format(label.description))
         print
 
 
 def list_metric_descriptors(client):
-    print 'Defined metric descriptors:'
+    print('Defined metric descriptors:')
 
     index = 0
     for descriptor in client.list_metric_descriptors():
         index += 1
-        print 'Metric descriptor #{}'.format(index)
-        print '\tname: {}'.format(descriptor.name)
-        print '\ttype: {}'.format(descriptor.type)
-        print '\tmetric_kind: {}'.format(descriptor.metric_kind)
-        print '\tvalue_type: {}'.format(descriptor.value_type)
-        print '\tunit: {}'.format(descriptor.unit)
-        print '\tdisplay_name: {}'.format(descriptor.display_name)
-        print '\tdescription: {}'.format(descriptor.description.encode('utf-8'))
-        print
+        print('Metric descriptor #{}'.format(index))
+        print('\tname: {}'.format(descriptor.name))
+        print('\ttype: {}'.format(descriptor.type))
+        print('\tmetric_kind: {}'.format(descriptor.metric_kind))
+        print('\tvalue_type: {}'.format(descriptor.value_type))
+        print('\tunit: {}'.format(descriptor.unit))
+        print('\tdisplay_name: {}'.format(descriptor.display_name))
+        print('\tdescription: {}'.format(descriptor.description.encode('utf-8')))
+        print()
 
 
 def _build_label_filter(category, *args, **kwargs):
@@ -152,37 +154,37 @@ def perform_query(client, metric_id, days, hours, minutes,
         delta = datetime.timedelta(days=days, hours=hours, minutes=minutes)
         seconds = delta.total_seconds()
         if not iloc00:
-            print 'ALIGN: {} seconds: {}'.format(align, seconds)
+            print('ALIGN: {} seconds: {}'.format(align, seconds))
         query = query.align(align, seconds=seconds)
 
     if reduce:
         if not iloc00:
-            print 'REDUCE: {} grouping: {}'.format(reduce, reduce_grouping)
+            print('REDUCE: {} grouping: {}'.format(reduce, reduce_grouping))
         if reduce_grouping:
             query = query.reduce(reduce, *reduce_grouping)
         else:
             query = query.reduce(reduce)
 
     if not iloc00:
-        print 'QUERY: {}'.format(query.filter)
+        print('QUERY: {}'.format(query.filter))
 
     dataframe = query.as_dataframe()
 
     if iloc00:
         if len(dataframe) == 0:
             # No dataset = zero
-            print '0'
+            print('0')
 
         else:
             # print "top left" element of the table only, asusming it's the only one left
             # see http://pandas.pydata.org/pandas-docs/stable/10min.html for details
             assert len(dataframe) == 1
             assert len(dataframe.iloc[0]) == 1
-            print dataframe.iloc[0, 0]
+            print(dataframe.iloc[0, 0])
 
     else:
         # print the whole dataset
-        print dataframe
+        print(dataframe)
 
 
 def process(keyfile, config, project_id, list_resources, list_metrics, query, metric_id, days, hours, minutes,
@@ -220,23 +222,23 @@ def init_config(args_dict):
 
     _dir = args_dict['init_config']
     if not os.path.exists(_dir):
-        print 'Creating folder: {}'.format(_dir)
+        print('Creating folder: {}'.format(_dir))
         os.makedirs(_dir)
 
     _path = os.path.split(os.path.abspath(__file__))[0]
     _from = os.path.join(_path, 'config-template.yaml')
     _to = os.path.join(_dir, 'config.yaml')
-    print 'Creating configuration file: {}'.format(_to)
+    print('Creating configuration file: {}'.format(_to))
 
     shutil.copyfile(_from, _to)
 
     _path = os.path.split(os.path.abspath(__file__))[0]
     _from = os.path.join(_path, 'keyfile-template.json')
     _to = os.path.join(_dir, 'keyfile.json')
-    print 'Creating (empty) key file: {}'.format(_to)
+    print('Creating (empty) key file: {}'.format(_to))
     shutil.copyfile(_from, _to)
 
-    print "Configuration created, use '--config {}' to reference it.".format(_dir)
+    print("Configuration created, use '--config {}' to reference it.".format(_dir))
     return 0
 
 
@@ -307,7 +309,7 @@ def main():
     args_dict = vars(PARSER.parse_args())
 
     if args_dict['version']:
-        print version()
+        print(version())
         return 0
 
     if args_dict['init_config']:
