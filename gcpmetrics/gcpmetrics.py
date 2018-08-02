@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 import os
 import sys
 import shutil
@@ -7,8 +9,6 @@ import argparse
 import datetime
 import yaml
 from gcloud import monitoring
-
-from __future__ import print_function
 
 PARSER = argparse.ArgumentParser(
     description='Google Cloud Monitoring API Command Line\nWebsite: https://github.com/odin-public/gcpmetrics',
@@ -245,13 +245,15 @@ def init_config(args_dict):
 def apply_configs(args_dict):
 
     _path = os.path.split(os.path.abspath(__file__))[0]
-    stream = file(os.path.join(_path, 'global.yaml'), 'r')
+    stream = open(os.path.join(_path, 'global.yaml'), 'r')
     global_config = yaml.load(stream)
+    stream.close()
 
     local_config = {}
     if args_dict['config']:
-        stream = file(args_dict['config'], 'r')
+        stream = open(args_dict['config'], 'r')
         local_config = yaml.load(stream)
+        stream.close()
 
     _ret = args_dict
     for p in args_dict.keys():
