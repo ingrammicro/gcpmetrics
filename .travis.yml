@@ -13,6 +13,6 @@ deploy:
   provider: pypi
   user: apslite
   password:
-    secure: Qp7llURergPitunnIXlI2gSCFY2/9uSZEHCMUA6r1572KJzM/WzQL4Hd+5Jrz32D1eNmqP3g3jxHf3PhwLp1eJ+UGg3k/fyXHgNcPyzsvrwjXbUtj3d05R46diECJ6hpJQlaMZEGnbMSqDhbWjlHL0q/XePviXdhPNd0afC4rMwT3hVDJukIOy6OADCKpnHxab19UqTSkn8epujfa1e7YCtf95yE7WHbPzWjYfrvQTFNN5MZrYcxZ1C74KO+DLfQoNfb5AAxNS8rl5ne0agZB8fyQ913Cioe7/0RDLWO8wkO8Tv0n3J9QIxhD7m1IJKmWP2K56bkQhoeSSJZls9CVouZC6Cp/cfS+nl1p3FhBcpiYKWzn+hmfyRQbLjJ8EELt+5mAHFNIx8D1rQLmYnIcSSkwab6A7h6RWLFgTFJ8XLEn/Vg8SARLB+2kO2KfwZQg2FpTJqVGlpWlH74YCtOHqdhpvq80OnBQ/A4t7WY4Kn9hareRKZa0iCqdUn+xbJaTB/iSM704dPtYInQU6K2/Cx65Q7BXfYNpek0igV7XOKB3+LagOq8czaxJFKw+KT2Af4t3lFCpXyTH4NhYeNIFBqc6XcMhBo+cmnhbw+lthWKIWKn2iijQEYxYxNih3fgXC1weLHQMpJqhXwZ3jOTOGKDxXv8aAHkDeFDkBca3Ro=
+    secure: {secret}
   on:
     distributions: sdist
